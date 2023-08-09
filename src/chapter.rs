@@ -112,7 +112,7 @@ impl ChapterMetadataSeries {
 
         // Filter for TL group
         chapters.iter()
-            .map(|(_, ms)| match ms.len() { 
+            .map(|(_, ms)| match ms.len() {
                 1 => ms[0],
                 _ => ms.iter() // Guaranteed != 0
                         .filter(|m| match preferred_tl {
@@ -228,11 +228,14 @@ impl Chapter {
                 .ok_or(ImageDownloadError::NoContentType)?
                 .to_str()?;
 
-            let extension = mime_guess::get_mime_extensions_str(content_type)
-                .ok_or(ImageDownloadError::Mime)?
-                .iter().map(|s| *s)
-                .next()
-                .ok_or(ImageDownloadError::Mime)?;
+            // let extension = mime_guess::get_mime_extensions_str(content_type)
+            //     .ok_or(ImageDownloadError::Mime)?
+            //     .iter().map(|s| *s)
+            //     .next()
+            //     .ok_or(ImageDownloadError::Mime)?;
+            let Some(extension) = mime2ext::mime2ext(content_type) else {
+                return Err(ImageDownloadError::Mime);
+            };
 
             // Get the body
             let body = res.bytes().await?;
